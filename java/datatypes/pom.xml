@@ -26,10 +26,6 @@
         their interchanges. These are generated from Protocol Buffers and gRPC
         definitions included in the package.
     </description>
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-    </properties>
     <artifactId>feast-datatypes</artifactId>
 
     <parent>
