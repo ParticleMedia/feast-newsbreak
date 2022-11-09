@@ -88,17 +88,17 @@ class TrinoRetrievalJob(RetrievalJob):
     def _to_df_internal(self) -> pd.DataFrame:
         """Return dataset as Pandas DataFrame synchronously including on demand transforms"""
         results = self._client.execute_query(query_text=self._query)
-        # self.pyarrow_schema = results.pyarrow_schema
+        self.pyarrow_schema = results.pyarrow_schema
         return results.to_dataframe()
 
     def _to_arrow_internal(self) -> pyarrow.Table:
         """Return payrrow dataset as synchronously including on demand transforms"""
-        # return pyarrow.Table.from_pandas(
-        #     self._to_df_internal(), schema=self.pyarrow_schema
-        # )
-        raise NotImplementedError(
-            "offline_write_batch not implemented for batch sources specified by path"
+        return pyarrow.Table.from_pandas(
+            self._to_df_internal(), schema=self.pyarrow_schema
         )
+        # raise NotImplementedError(
+        #     "offline_write_batch not implemented for batch sources specified by path"
+        # )
 
     def to_sql(self) -> str:
         """Returns the SQL query that will be executed in Trino to build the historical feature table"""
@@ -195,9 +195,9 @@ class TrinoOfflineStore(OfflineStore):
             FROM (
                 SELECT {field_string},
                 ROW_NUMBER() OVER({partition_by_join_key_string} ORDER BY {timestamp_desc_string}) AS _feast_row
-                FROM {from_expression}
+                FROM ({from_expression}) from_tbl
                 WHERE {timestamp_field} BETWEEN TIMESTAMP '{start_date}' AND TIMESTAMP '{end_date}'
-            )
+            ) tbl
             WHERE _feast_row = 1
             """
 
