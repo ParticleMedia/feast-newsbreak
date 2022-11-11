@@ -3,6 +3,7 @@ package com.newsbreak.data.feature.service.connector.utils;
 import com.newsbreak.data.feature.service.connector.Connector;
 import com.newsbreak.data.feature.service.connector.ConnectorFactory;
 import com.newsbreak.data.feature.service.service.meta.FeatureMetaService;
+import feast.proto.serving.ServingAPIProto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,10 @@ public class ConnectorHelper {
             synchronized (ConnectorHelper.class) {
                 if (!featureViewConnectorMap.containsKey(featureViewName)) {
                     LOGGER.info("Add connector: {}", featureViewName);
-                    featureViewConnectorMap.put(featureViewName, ConnectorFactory.create(FeatureMetaService.getFeatureView(featureViewName)));
+                    ServingAPIProto.FeatureReferenceV2 featureReference = ServingAPIProto.FeatureReferenceV2.newBuilder()
+                                    .setFeatureViewName(featureViewName)
+                                    .build();
+                    featureViewConnectorMap.put(featureViewName, ConnectorFactory.create(FeatureMetaService.getFeatureView(featureReference)));
                 }
             }
         }

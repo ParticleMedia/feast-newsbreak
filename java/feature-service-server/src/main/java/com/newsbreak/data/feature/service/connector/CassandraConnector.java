@@ -10,6 +10,7 @@ import com.datastax.oss.driver.api.core.cql.Row;
 import com.newsbreak.data.feature.service.FeatureValue;
 import com.newsbreak.data.feature.service.service.meta.FeatureMetaService;
 import com.newsbreak.data.feature.service.service.meta.FeatureView;
+import feast.proto.serving.ServingAPIProto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,10 @@ public class CassandraConnector implements Connector {
             return new HashMap<>();
         }
 
-        FeatureView featureView = FeatureMetaService.getFeatureView(featureViewName);
+        ServingAPIProto.FeatureReferenceV2 featureReference = ServingAPIProto.FeatureReferenceV2.newBuilder()
+                .setFeatureViewName(featureViewName)
+                .build();
+        FeatureView featureView = FeatureMetaService.getFeatureView(featureReference);
         if (featureView == null) {
             // TODO
             LOGGER.error("Meta info of feature view not found: {}", featureViewName);
@@ -165,7 +169,10 @@ public class CassandraConnector implements Connector {
             return new HashMap<>();
         }
 
-        FeatureView featureView = FeatureMetaService.getFeatureView(featureViewName);
+        ServingAPIProto.FeatureReferenceV2 featureReference = ServingAPIProto.FeatureReferenceV2.newBuilder()
+                .setFeatureViewName(featureViewName)
+                .build();
+        FeatureView featureView = FeatureMetaService.getFeatureView(featureReference);
         if (featureView == null) {
             // TODO
             LOGGER.error("Meta info of feature view not found: {}", featureViewName);
