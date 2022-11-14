@@ -157,7 +157,7 @@ class SparkMaterializationEngine(BatchMaterializationEngine):
 
             materialization_dict = {}
             # materialization_dict["meta_uris"] = "thrift://ip-172-31-176-71.us-west-2.compute.internal:9083,thrift://ip-172-31-177-137.us-west-2.compute.internal:9083,thrift://ip-172-31-177-14.us-west-2.compute.internal:9083"
-            materialization_dict["sql"] = re.sub("\\s+", " ", sql)
+            materialization_dict["sql"] = sql #re.sub("\\s+", " ", sql)
             materialization_dict["feature_view"] = feature_view.name
             materialization_dict["timestamp_field"] = feature_view.batch_source.timestamp_field
             materialization_dict["project"] = project
