@@ -38,30 +38,27 @@ public class FeatureMetaModule extends TwitterModule {
     @Singleton
     @Provides
     RegistryRepository registryRepository(
-            RegistryFile registryFile, ApplicationProperties applicationProperties) {
+            RegistryFile registryFile) {
         return new RegistryRepository(
-                registryFile, applicationProperties.getFeast().getRegistryRefreshInterval());
+                registryFile, 500);
     }
 
     @Provides
-    public AmazonS3 awsStorage(ApplicationProperties applicationProperties) {
+    public AmazonS3 awsStorage() {
         return AmazonS3ClientBuilder.standard()
-                .withRegion(applicationProperties.getFeast().getAwsRegion())
+                .withRegion("us-west-2")
                 .build();
     }
 
     @Provides
     RegistryFile registryFile(
-            ApplicationProperties applicationProperties,
-            Provider<Storage> storageProvider,
             Provider<AmazonS3> amazonS3Provider) {
 
-        String registryPath = applicationProperties.getFeast().getRegistry();
+        //TODO change to prod
+        String registryPath = "s3://newsbreak-feast/registry/staging/feature_repo.db";
         Optional<String> scheme = Optional.ofNullable(URI.create(registryPath).getScheme());
 
         switch (scheme.orElse("")) {
-            case "gs":
-                return new GSRegistryFile(storageProvider.get(), registryPath);
             case "s3":
                 return new S3RegistryFile(amazonS3Provider.get(), registryPath);
             case "":
