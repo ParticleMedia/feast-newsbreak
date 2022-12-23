@@ -234,17 +234,29 @@ class TrinoSource(DataSource):
             port=config.offline_store.port,
         )
         if self.table:
-            table_schema = client.execute_query(
-                f"SELECT * FROM {self.table} LIMIT 1"
-            ).schema
+            # table_schema = client.execute_query(
+            #     f"SELECT * FROM {self.table} LIMIT 1"
+            # ).schema
+            table_schema = client.execute_query(f"show columns from {self.table} ")
+
+            column_names = [item[0] for item in table_schema.data]
+            column_types = [item[1] for item in table_schema.data]
+
+            schema_mapping = dict(zip(column_names, column_types))
+
+            print("Verified schema mapping:")
+            print(schema_mapping)
+
+            return schema_mapping
+
         else:
             table_schema = client.execute_query(
                 f"SELECT * FROM ({self.query}) LIMIT 1"
             ).schema
 
-        return [
-            (field_name, field_type) for field_name, field_type in table_schema.items()
-        ]
+            return [
+                (field_name, field_type) for field_name, field_type in table_schema.items()
+            ]
 
 
 class SavedDatasetTrinoStorage(SavedDatasetStorage):

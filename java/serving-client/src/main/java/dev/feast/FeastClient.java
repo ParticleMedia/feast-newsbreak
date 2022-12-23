@@ -169,9 +169,14 @@ public class FeastClient implements AutoCloseable {
       }
     }
 
-    return columnarEntities.entrySet().stream()
-        .map((e) -> Map.entry(e.getKey(), e.getValue().build()))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    Map<String, ValueProto.RepeatedValue> map = new HashMap<>();
+    for (Map.Entry<String, ValueProto.RepeatedValue.Builder> e : columnarEntities.entrySet()) {
+//      Map.Entry<String, ValueProto.RepeatedValue> entry = Map.entry(e.getKey(), e.getValue().build());
+      if (map.put(e.getKey(), e.getValue().build()) != null) {
+        throw new IllegalStateException("Duplicate key");
+      }
+    }
+    return map;
   }
 
   /**

@@ -8,6 +8,7 @@ import com.newsbreak.data.feature.service.connector.utils.ConnectorHelper;
 import com.newsbreak.data.feature.service.service.meta.api.ApiResponse;
 import com.newsbreak.data.feature.service.service.meta.api.ApiResponseEntity;
 import com.newsbreak.data.feature.service.utils.HttpHelper;
+import feast.proto.serving.ServingAPIProto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,8 @@ public class FeatureMetaService extends AbstractScheduledService {
     private static final String METHOD_GET_ENTITIES_BY_VIEW = "/api/v1/get_entities_by_view";
 
     private static final int API_RESPONSE_SUCCESS_CODE = 200;
-    private static final int SCHEDULE_INTERVAL_SECONDS = 300;
+    private static final int DEFAULT_SCHEDULE_INTERVAL_SECONDS = 300;
+    private static int SCHEDULE_INTERVAL_SECONDS;
 
     private Logger LOGGER = LoggerFactory.getLogger(FeatureMetaService.class);
 
@@ -67,6 +69,14 @@ public class FeatureMetaService extends AbstractScheduledService {
         removeDeprecatedFeatureView(featureViewListResponse.getData());
     }
 
+    public FeatureMetaService(){
+        this.SCHEDULE_INTERVAL_SECONDS = this.DEFAULT_SCHEDULE_INTERVAL_SECONDS;
+    }
+
+    public FeatureMetaService(int scheduleInervalSeconds){
+        this.SCHEDULE_INTERVAL_SECONDS = scheduleInervalSeconds;
+    }
+
     @Override
     protected Scheduler scheduler() {
         return Scheduler.newFixedRateSchedule(0,SCHEDULE_INTERVAL_SECONDS, TimeUnit.SECONDS);
@@ -77,8 +87,8 @@ public class FeatureMetaService extends AbstractScheduledService {
         runOneIteration();
     }
 
-    public static FeatureView getFeatureView(String featureView) {
-        return featureViewMap.get(featureView);
+    public static FeatureView getFeatureView(ServingAPIProto.FeatureReferenceV2 featureReference) {
+        return featureViewMap.get(featureReference.getFeatureViewName());
     }
 
     private void removeDeprecatedFeatureView(List<String> featureViewNameList) {
